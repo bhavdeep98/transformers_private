@@ -397,10 +397,11 @@ class BertEncoder(nn.Module):
         encoder_hidden_states=None,
         encoder_attention_mask=None,
     ):
-        inital_hidden_states = hidden_states
+        #inital_hidden_states = hidden_states
 	all_hidden_states = ()
         all_attentions = ()
         for i, layer_module in enumerate(self.layer):
+	    inital_hidden_states = hidden_states
             if self.output_hidden_states:
                 all_hidden_states = all_hidden_states + (hidden_states,)
 
@@ -408,7 +409,9 @@ class BertEncoder(nn.Module):
                 hidden_states, attention_mask, head_mask[i], encoder_hidden_states, encoder_attention_mask
             )
             hidden_states = layer_outputs[0]
-
+		
+	    hidden_states = torch.cat([hidden_states, inital_hidden_states], 0)
+	
             if self.output_attentions:
                 all_attentions = all_attentions + (layer_outputs[1],)
 
@@ -422,7 +425,7 @@ class BertEncoder(nn.Module):
         if self.output_attentions:
             outputs = outputs + (all_attentions,)
 
-	outputs = outputs + (inital_hidden_states,)
+	#outputs = outputs + (inital_hidden_states,)
         return outputs  # last-layer hidden state, (all hidden states), (all attentions)
 
 
